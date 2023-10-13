@@ -1,0 +1,25 @@
+- name: checking nodejs existing or not
+  shell: type npm
+  register: node
+  ignore_errors: yes
+- name: INstall NodeJS Repos
+  ansible.builtin.shell: curl -sL https://rpm.nodesource.com/setup_lts.x | bash
+  when: node.rc != 0
+- name: Install NodeJS
+  ansible.builtin.yum:
+    name: nodejs
+    state: installed
+  when: node.rc != 0
+- name: "importing app-pre"
+  import_tasks: app-pre.yml
+- name: copying {{component}} service file
+  copy:
+   src: "{{component}}.service"
+   dest: "/etc/systemd/system/{{component}}.service"
+- name: deamon reload
+  shell: systemctl daemon-reload
+- name: service restart
+  import_tasks: service.yml
+- name: import mongodb schema
+  import_tasks: mongo-schema.yml
+  when: schema is defined

@@ -1,0 +1,5 @@
+ - name: Ensure service is started and disabled
+   systemd:
+        name: "{{component}}"
+        state: started
+        enabled: yes
